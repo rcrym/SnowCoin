@@ -1,0 +1,28 @@
+{
+  "name": "SnowCoin",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/Rileyc2022/SnowCoin.git",
+  "author": "Rileyc2022 <rileyc2022@headroyce.org>",
+  "license": "MIT",
+  "scripts": {
+    "watch": "tsc -w",
+    "dev": "nodemon dist/index.js",
+    "start": "node dist/index.js",
+    "build": "tsc",
+    "prod": "yarn run build && yarn run start"
+  },
+  "dependencies": {
+    "@types/axios": "^0.14.0",
+    "@types/sharp": "^0.29.4",
+    "axios": "^0.24.0",
+    "discord.js": "^13.3.1",
+    "dotenv": "^10.0.0",
+    "firebase": "^9.4.1",
+    "sharp": "^0.29.3",
+    "typescript": "^4.4.4"
+  },
+  "engines": {
+    "node": "16.11"
+  }
+}
