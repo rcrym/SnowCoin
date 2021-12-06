@@ -55,14 +55,15 @@ export function showNetWorth(
             },
         ];
 
-
-        await setDoc(
-            doc(db, "users", user.id),
-            {
-              investments: document.data().investments.filter((item: any) => item.coins_owned !== 0)
-            },
-            { merge: true }
-        );
+        if (document.data().investments) {
+            await setDoc(
+                doc(db, "users", user.id),
+                {
+                  investments: document.data().investments?.filter((item: any) => item.coins_owned !== 0)
+                },
+                { merge: true }
+            )
+        }
         
         const docRef = doc(db, "users", user.id);
         let docSnap = await getDoc(docRef)
