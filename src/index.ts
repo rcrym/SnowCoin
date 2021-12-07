@@ -49,7 +49,7 @@ bot.on("message", (msg) => {
     if (commandIs("!sell", msg) || commandIs("!s", msg)) {
         sell_command(msg)
     }
-    if (commandIs("!networth", msg) || commandIs("!nw", msg)) {
+    if (commandIs("!networth", msg) || commandIs("!nw", msg) || commandIs("!n", msg)) {
         networth_command(msg)
     }
 });
