@@ -7,6 +7,7 @@ import { networth_command } from "./commands/networth";
 import 'dotenv/config'
 import { buy_commmand } from "./commands/buy";
 import { sell_command } from "./commands/sell";
+import { ping_command } from "./commands/ping";
 
 
 // Discord wants to know what data the bot needs
@@ -16,6 +17,8 @@ const bot = new Discord.Client(<Discord.ClientOptions>{
 
 // On start-up...
 bot.on("ready", () => {
+    // let time = new Date();
+    // (bot.channels.cache.get('913651004187213865') as TextChannel ).send('Successful restarted at ' + time.toLocaleTimeString)
     logStats(bot)
     bot?.user?.setPresence({
         activity: {
@@ -51,6 +54,9 @@ bot.on("message", (msg) => {
     }
     if (commandIs("!networth", msg) || commandIs("!nw", msg) || commandIs("!n", msg)) {
         networth_command(msg)
+    }
+    if (commandIs("!ping", msg)) {
+        ping_command(msg)
     }
 });
 

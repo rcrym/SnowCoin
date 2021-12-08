@@ -89,6 +89,8 @@ export const buy_commmand = (msg: Message) => {
             const new_portfolio = docSnap_payer.data().investments
                 ? [...docSnap_payer.data().investments]
                 : [];
+            const roll_back = docSnap_payer.data();
+
             var found = false;
             for (let investment of new_portfolio) {
                 if (investment.symbol == coin.symbol) {
@@ -112,45 +114,22 @@ export const buy_commmand = (msg: Message) => {
                 { merge: true }
             );
             docSnap_payer = await getDoc(docRef_payer);
-            let it_updated_correctly = false;
-
+            // let it_updated_correctly = false;
+            let NaN_detected = false;
+            if (!isFinite(docSnap_payer.data()?.balance)) {
+                NaN_detected = true;
+            }
             for (let investment of docSnap_payer.data()?.investments) {
+                if (!isFinite(investment.coins_owned)  || NaN_detected) {
+                    NaN_detected = true;
+                    break;
+                }
                 // just check it's there and updated
-                if (investment.symbol == coin.symbol) {
-                    if ((coin_logo_urls as any)[coin.symbol]) {
-                        // console.log("using url ____________")
-                        // need_to_download = false;
-                        msg.channel.send({
-                            embeds: [
-                                {
-                                    title: `**${coins_to_buy} ${investment.symbol}** successfully bought by ${msg.author.username}`,
-                                    description: `(Equal to ${snow_coin_paid} SWC)`,
-                                    color: 7237887,
-                                    footer: {
-                                        text: `${coin.name}`,
-                                    },
-                                    thumbnail: {
-                                        url: (coin_logo_urls as any)[
-                                            coin.symbol
-                                        ],
-                                    },
-                                    fields: [
-                                        {
-                                            name: "SWC in !wallet now:",
-                                            value: `${
-                                                docSnap_payer.data()?.balance
-                                            }`,
-                                        },
-                                        {
-                                            name: `${coin.name} owned now:`,
-                                            value: `${investment.coins_owned}`,
-                                        },
-                                    ],
-                                },
-                            ],
-                        });
-                    } else {
-                        downloadFileThen(coin, () => {
+                if (!NaN_detected) {
+                    if (investment.symbol == coin.symbol) {
+                        if ((coin_logo_urls as any)[coin.symbol]) {
+                            // console.log("using url ____________")
+                            // need_to_download = false;
                             msg.channel.send({
                                 embeds: [
                                     {
@@ -161,15 +140,15 @@ export const buy_commmand = (msg: Message) => {
                                             text: `${coin.name}`,
                                         },
                                         thumbnail: {
-                                            url: `attachment://${coin.symbol}.png`,
+                                            url: (coin_logo_urls as any)[
+                                                coin.symbol
+                                            ],
                                         },
                                         fields: [
                                             {
                                                 name: "SWC in !wallet now:",
-                                                value: `${
-                                                    docSnap_payer.data()
-                                                        ?.balance
-                                                }`,
+                                                value: `${docSnap_payer.data()?.balance
+                                                    }`,
                                             },
                                             {
                                                 name: `${coin.name} owned now:`,
@@ -178,22 +157,55 @@ export const buy_commmand = (msg: Message) => {
                                         ],
                                     },
                                 ],
-                                files: [`./${coin.symbol}.png`],
                             });
-                        });
+                        } else {
+                            downloadFileThen(coin, () => {
+                                msg.channel.send({
+                                    embeds: [
+                                        {
+                                            title: `**${coins_to_buy} ${investment.symbol}** successfully bought by ${msg.author.username}`,
+                                            description: `(Equal to ${snow_coin_paid} SWC)`,
+                                            color: 7237887,
+                                            footer: {
+                                                text: `${coin.name}`,
+                                            },
+                                            thumbnail: {
+                                                url: `attachment://${coin.symbol}.png`,
+                                            },
+                                            fields: [
+                                                {
+                                                    name: "SWC in !wallet now:",
+                                                    value: `${docSnap_payer.data()
+                                                            ?.balance
+                                                        }`,
+                                                },
+                                                {
+                                                    name: `${coin.name} owned now:`,
+                                                    value: `${investment.coins_owned}`,
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                    files: [`./${coin.symbol}.png`],
+                                });
+                            });
+                        }
                     }
                 }
-
-                it_updated_correctly = true;
+                // it_updated_correctly = true;
             }
-
-            if (!it_updated_correctly) {
-                msg.channel.send("Something went wrong. Transaction failed.");
+            if (NaN_detected) {
+                await setDoc(doc(db, "users", msg.author.id), roll_back);
+                msg.channel.send("Something went wrong, resulting in a NaN or Infinite balance or coin amount. Please try something different.");
+                return;
             }
+            // if (!it_updated_correctly) {
+            //     msg.channel.send("Something went wrong. Transaction failed.");
+            // }
         } else {
             msg.channel.send(
                 "Transaction failed. Have you initialized a wallet with **!wallet** yet?"
             );
         }
-})();
+    })();
 };
