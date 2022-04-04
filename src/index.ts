@@ -9,6 +9,7 @@ import { buy_commmand } from "./commands/buy";
 import { sell_command } from "./commands/sell";
 import { ping_command } from "./commands/ping";
 import { double_or_nothing_command } from "./commands/doubleornothing";
+import { leaderboard_command } from "./commands/leaderboard";
 
 
 // Discord wants to know what data the bot needs
@@ -61,6 +62,9 @@ bot.on("message", (msg) => {
     }
     if (commandIs("!doubleornothing", msg) || commandIs("!don", msg)) {
         double_or_nothing_command(msg)
+    }
+    if (commandIs("!leaderboard", msg) || commandIs("!lb", msg)) {
+        leaderboard_command(msg)
     }
 });
 
